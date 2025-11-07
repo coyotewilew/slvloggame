@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Snake Xenzia — Final Clue</title>
+<style>
+body{margin:0;background:#000;color:#fff;text-align:center;font-family:sans-serif;}
+canvas{background:#000;display:block;margin:20px auto;border:2px solid #f00;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:10;}
+.big-red{color:#ff3030;font-weight:bold;font-size:28px;text-transform:uppercase;margin-bottom:10px;}
+.txt{padding:10px;border-radius:5px;border:none;outline:none;font-size:16px;text-align:center;}
+.btn{padding:10px 18px;border:none;border-radius:5px;margin-top:10px;background:#f00;color:#fff;cursor:pointer;font-weight:bold;}
+</style>
+</head>
+<body>
+<h2>Snake Xenzia — Final Clue Edition</h2>
+<canvas id="game" width="500" height="500"></canvas>
+<div class="overlay" id="overlay">
+  <p class="big-red">ENTER YOUR CODE TO UNLOCK NEXT TASK</p>
+  <input id="codeInput" class="txt" type="password" placeholder="Enter code..." />
+  <button class="btn" id="unlockBtn">Unlock</button>
+  <p id="err" style="color:#ff8080;height:20px"></p>
+</div>
+
+<script>
+const PASS="slvlog2.0";
+const overlay=document.getElementById('overlay');
+const codeInput=document.getElementById('codeInput');
+const unlockBtn=document.getElementById('unlockBtn');
+const err=document.getElementById('err');
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+function normalize(s){return (s||'').toLowerCase().replace(/\s+/g,'').replace(/[^a-z0-9]/g,'');}
+function checkCode(){
+  if(normalize(codeInput.value)===normalize(PASS)){
+    overlay.style.display='none';
+    startIntro();
+  }else{
+    err.textContent='Code failed';
+  }
+}
+unlockBtn.onclick=checkCode;
+codeInput.addEventListener('keydown',e=>{if(e.key==='Enter')checkCode();});
+
+function startIntro(){
+  alert('GREAT JOB COMING THIS FAR!');
+  alert('FOR NEXT MISSION SELECT THE BEST GAMER IN YOUR TEAM. done and proceed to game');
+  startGame();
+}
+
+let snake=[{x:10,y:10}];
+let dir={x:1,y:0};
+let food={x:5,y:5};
+let score=0;
+let started=false;
+
+function draw(){
+  ctx.fillStyle='#000';ctx.fillRect(0,0,500,500);
+  ctx.fillStyle='#f00';ctx.fillRect(food.x*20,food.y*20,18,18);
+  ctx.fillStyle='#fff';
+  snake.forEach(s=>ctx.fillRect(s.x*20,s.y*20,18,18));
+}
+function move(){
+  const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+  if(head.x===food.x&&head.y===food.y){score+=100;food={x:Math.floor(Math.random()*25),y:Math.floor(Math.random()*25)};}else snake.pop();
+  snake.unshift(head);
+  if(head.x<0||head.y<0||head.x>24||head.y>24||snake.slice(1).some(s=>s.x===head.x&&s.y===head.y)){
+    alert('GAME OVER!');reset();
+  }
+  if(score>=2000){
+    alert('CONGRATS SCAVENGER!\n\nYOUR FINAL CLUE TO LOCATE PRIZE IS:\n\nAAX 4399');
+    reset();
+  }
+}
+function loop(){if(started){move();draw();}requestAnimationFrame(loop);}
+function reset(){snake=[{x:10,y:10}];dir={x:1,y:0};score=0;started=false;draw();}
+function startGame(){draw();loop();}
+document.addEventListener('keydown',e=>{
+  if(document.activeElement===codeInput||overlay.style.display!=='none')return;
+  if(e.key==='ArrowUp'||e.key==='w')dir={x:0,y:-1};
+  if(e.key==='ArrowDown'||e.key==='s')dir={x:0,y:1};
+  if(e.key==='ArrowLeft'||e.key==='a')dir={x:-1,y:0};
+  if(e.key==='ArrowRight'||e.key==='d')dir={x:1,y:0};
+  started=true;
+});
+draw();
+</script>
+</body>
+</html>
